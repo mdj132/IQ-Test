@@ -6,15 +6,15 @@
 <title>IQ Suite</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-:root{--bg:#0a0a1a;--card:#12122a;--card2:#1a1a35;--accent:#6c63ff;--a2:#a78bfa;--green:#22d3a5;--red:#ff6b6b;--yellow:#f59e0b;--text:#e8e8ff;--muted:#8888aa;--border:rgba(108,99,255,0.25)}
+:root{  --bg:#f0f0f4;--card:#ffffff;--card2:#f5f5fa;--accent:#6c63ff;--a2:#6c63ff;--green:#16a37a;--red:#e84545;--yellow:#d97706;--text:#1a1a2e;--muted:#6b7280;--border:rgba(108,99,255,0.2)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(108,99,255,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(167,139,250,.1) 0%,transparent 55%);pointer-events:none;z-index:0}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(108,99,255,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(108,99,255,.04) 0%,transparent 55%);pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;width:100%;max-width:700px;padding:20px}
 .screen{display:none;animation:fadeUp .45s ease}
 .screen.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 25px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 8px 40px rgba(108,99,255,.1),0 2px 8px rgba(0,0,0,.06)}
 
 /* HUB */
 .hub-logo{text-align:center;margin-bottom:32px}
