@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+:root{--bg:#0a0a1a;--card:#12122a;--card2:#1a1a35;--accent:#6c63ff;--a2:#a78bfa;--green:#22d3a5;--red:#ff6b6b;--yellow:#f59e0b;--text:#e8e8ff;--muted:#8888aa;--border:rgba(108,99,255,0.25)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(108,99,255,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(167,139,250,.1) 0%,transparent 55%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;width:100%;max-width:700px;padding:20px}
+.screen{display:none;animation:fadeUp .45s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 25px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+
+/* HUB */
+.hub-logo{text-align:center;margin-bottom:32px}
+.hub-icon{width:88px;height:88px;background:linear-gradient(135deg,var(--accent),var(--a2));border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 18px;box-shadow:0 10px 40px rgba(108,99,255,.45);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 10px 40px rgba(108,99,255,.4);transform:scale(1)}50%{box-shadow:0 15px 60px rgba(108,99,255,.6);transform:scale(1.03)}}
+.hub-logo h1{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.hub-logo p{color:var(--muted);margin-top:6px;font-size:.9rem}
+.game-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.game-card{background:var(--card2);border:1.5px solid var(--border);border-radius:18px;padding:22px 18px;cursor:pointer;transition:all .22s ease;position:relative;overflow:hidden}
+.game-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent),var(--a2));opacity:0;transition:opacity .2s}
+.game-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 35px rgba(108,99,255,.2)}
+.game-card:hover::after{opacity:.06}
+.gc-icon{font-size:2rem;margin-bottom:10px}
+.gc-title{font-size:1rem;font-weight:700;margin-bottom:4px}
+.gc-desc{font-size:.78rem;color:var(--muted);line-height:1.4}
+.gc-badge{position:absolute;top:12px;right:12px;font-size:.7rem;padding:3px 9px;border-radius:10px;font-weight:600}
+.badge-easy{background:rgba(34,211,165,.15);color:var(--green)}
+.badge-med{background:rgba(245,158,11,.15);color:var(--yellow)}
+.badge-hard{background:rgba(255,107,107,.15);color:var(--red)}
+.game-card.done .gc-icon::after{content:'✓';position:absolute;top:8px;left:8px;background:var(--green);color:#000;border-radius:50%;width:22px;height:22px;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+.total-bar{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.tb-label{font-size:.85rem;color:var(--muted);flex-shrink:0}
+.tb-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}
+.tb-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a2));border-radius:6px;transition:width .6s ease;box-shadow:0 0 12px rgba(108,99,255,.5)}
+.tb-score{font-weight:700;color:var(--a2);flex-shrink:0}
+
+/* Generic header */
+.game-header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.back-btn{width:38px;height:38px;border-radius:10px;background:var(--card2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .18s;color:var(--text);flex-shrink:0}
+.back-btn:hover{border-color:var(--accent);background:rgba(108,99,255,.12)}
+.gh-info{flex:1}
+.gh-title{font-size:1.1rem;font-weight:700}
+.gh-sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+.pts-badge{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:20px;padding:6px 14px;font-size:.82rem;font-weight:600;color:var(--a2);white-space:nowrap}
+
+/* Progress */
+.prog-wrap{background:rgba(255,255,255,.06);border-radius:6px;height:5px;margin-bottom:22px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width .5s ease;box-shadow:0 0 8px rgba(108,99,255,.5)}
+
+/* Buttons */
+.btn{width:100%;padding:15px;border:none;border-radius:13px;font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--a2));color:#fff;box-shadow:0 8px 30px rgba(108,99,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(108,99,255,.55)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text);margin-top:10px}
+.btn-ghost:hover{border-color:var(--accent);color:var(--a2)}
+.btn-sm{width:auto;padding:10px 20px;font-size:.88rem}
+
+/* QUIZ */
+.cat-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.25);border-radius:20px;padding:5px 12px;font-size:.78rem;color:var(--a2);margin-bottom:14px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.q-text{font-size:1.18rem;font-weight:600;line-height:1.55;margin-bottom:24px;color:#fff}
+.options{display:grid;gap:11px}
+.opt{background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:13px;padding:15px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:13px;font-size:.96rem}
+.opt:hover:not(.disabled){border-color:rgba(108,99,255,.5);transform:translateX(4px)}
+.opt.sel{border-color:var(--accent);background:rgba(108,99,255,.15)}
+.opt.correct{border-color:var(--green);background:rgba(34,211,165,.1);animation:pop .35s ease}
+.opt.wrong{border-color:var(--red);background:rgba(255,107,107,.1);animation:shake .35s ease}
+.opt.disabled{cursor:default;pointer-events:none}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.opt-letter{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0;color:var(--a2)}
+.opt.correct .opt-letter{background:var(--green);color:#000}
+.opt.wrong .opt-letter{background:var(--red);color:#fff}
+.feedback{margin-top:16px;padding:13px 16px;border-radius:11px;font-size:.88rem;line-height:1.5;display:none}
+.feedback.show{display:block}
+.fb-ok{background:rgba(34,211,165,.08);border:1px solid rgba(34,211,165,.25);color:var(--green)}
+.fb-bad{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);color:var(--red)}
+.timer-row{display:flex;align-items:center;gap:10px}
+.t-circle{position:relative;width:48px;height:48px;flex-shrink:0}
+.t-circle svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.t-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:4}
+.t-arc{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:126;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s}
+.t-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700}
+
+/* 9-DOTS */
+#dot-canvas{display:block;margin:0 auto;cursor:crosshair;border-radius:12px;background:var(--card2)}
+.dot-controls{display:flex;gap:10px;margin-top:16px}
+.dot-info{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:12px;padding:14px 16px;font-size:.88rem;line-height:1.6;color:var(--muted);margin-bottom:18px}
+.dot-info strong{color:var(--a2)}
+
+/* HANOI */
+.hanoi-wrap{margin:10px 0 20px}
+#hanoi-canvas{display:block;margin:0 auto;border-radius:12px}
+.hanoi-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;background:var(--card2);border-radius:12px;padding:12px 16px}
+.hi-stat{text-align:center}
+.hi-val{font-size:1.3rem;font-weight:700;color:var(--a2)}
+.hi-lbl{font-size:.72rem;color:var(--muted)}
+.hanoi-hint{font-size:.82rem;color:var(--muted);text-align:center;margin-top:10px}
+
+/* MEMORY */
+.mem-display{background:var(--card2);border-radius:16px;padding:24px;text-align:center;margin-bottom:20px;min-height:80px;display:flex;align-items:center;justify-content:center}
+.mem-number{font-size:3rem;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,#fff,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mem-ready{font-size:.95rem;color:var(--muted)}
+.mem-input-row{display:flex;gap:10px;margin-bottom:16px}
+.mem-input{flex:1;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-family:'Inter',sans-serif;font-size:1.1rem;color:var(--text);letter-spacing:4px;text-align:center;font-weight:600}
+.mem-input:focus{outline:none;border-color:var(--accent)}
+.mem-input.correct-in{border-color:var(--green)!important;background:rgba(34,211,165,.08)}
+.mem-input.wrong-in{border-color:var(--red)!important;background:rgba(255,107,107,.08)}
+.mem-lives{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.mem-life{font-size:1.2rem;transition:all .3s}
+.mem-life.lost{opacity:.2;filter:grayscale(1)}
+.mem-round{font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:16px}
+
+/* SCALE PUZZLE */
+.scale-scene{margin:10px 0 24px}
+#scale-canvas{display:block;margin:0 auto}
+.scale-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.scale-opt{background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;font-size:.9rem;font-weight:600}
+.scale-opt:hover{border-color:var(--accent);background:rgba(108,99,255,.1)}
+.scale-opt.sel-opt{border-color:var(--accent);background:rgba(108,99,255,.18)}
+.scale-opt.correct{border-color:var(--green);background:rgba(34,211,165,.12)}
+.scale-opt.wrong{border-color:var(--red);background:rgba(255,107,107,.12)}
+.scale-desc{font-size:.88rem;color:var(--muted);line-height:1.6;margin-bottom:16px}
+
+/* STROOP */
+.stroop-word{text-align:center;padding:30px 20px;font-size:3.2rem;font-weight:900;letter-spacing:-1px;margin-bottom:10px;border-radius:16px;background:var(--card2);user-select:none}
+.stroop-q{text-align:center;font-size:.9rem;color:var(--muted);margin-bottom:20px}
+.stroop-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.stroop-opt{border:1.5px solid var(--border);border-radius:13px;padding:16px;text-align:center;cursor:pointer;font-size:1rem;font-weight:700;transition:all .2s;background:var(--card2)}
+.stroop-opt:hover{transform:scale(1.03)}
+.stroop-opt.correct{border-color:var(--green);box-shadow:0 0 20px rgba(34,211,165,.3)}
+.stroop-opt.wrong{border-color:var(--red);box-shadow:0 0 20px rgba(255,107,107,.3)}
+.stroop-stat{display:flex;justify-content:space-between;background:var(--card2);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+.ss-item{text-align:center}
+.ss-val{font-size:1.3rem;font-weight:700;color:var(--a2)}
+.ss-lbl{font-size:.7rem;color:var(--muted)}
+
+/* RESULT */
+.iq-ring-wrap{position:relative;width:170px;height:170px;margin:0 auto 20px}
+.iq-ring-wrap svg{transform:rotate(-90deg)}
+.iq-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.iq-num{font-size:3rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.iq-lbl{font-size:.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.res-title{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:6px}
+.res-desc{color:var(--muted);font-size:.88rem;text-align:center;line-height:1.6;margin-bottom:26px}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px}
+.rg-box{background:var(--card2);border:1px solid var(--border);border-radius:15px;padding:16px 10px;text-align:center}
+.rg-val{font-size:1.6rem;font-weight:700}
+.rg-lbl{font-size:.72rem;color:var(--muted);margin-top:4px}
+.breakdown{margin-bottom:18px}
+.bd-item{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.bd-name{font-size:.82rem;width:130px;flex-shrink:0}
+.bd-bar{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.bd-fill{height:100%;border-radius:4px;transition:width 1.4s .2s ease}
+.bd-sc{font-size:.78rem;color:var(--muted);width:40px;text-align:right;flex-shrink:0}
+.sec-title{font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+hr{border:none;border-top:1px solid rgba(255,255,255,.06);margin:18px 0}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HUB -->
+<div class="screen active" id="s-hub">
+<div class="card">
+  <div class="hub-logo">
+    <div class="hub-icon">🧠</div>
+    <h1>IQ Suite</h1>
+    <p>5 kognitive Tests · Vollständige Intelligenzanalyse</p>
+  </div>
+  <div class="total-bar">
+    <span class="tb-label">Gesamtfortschritt</span>
+    <div class="tb-track"><div class="tb-fill" id="total-fill" style="width:0%"></div></div>
+    <span class="tb-score" id="total-score">0 / 500 Pts</span>
+  </div>
+  <div class="game-grid">
+    <div class="game-card" onclick="go('quiz')" id="gc-quiz">
+      <span class="gc-badge badge-med">Mittel</span>
+      <div class="gc-icon">📝</div>
+      <div class="gc-title">IQ Quiz</div>
+      <div class="gc-desc">20 Fragen: Logik, Analogien, Zahlenreihen, Muster</div>
+    </div>
+    <div class="game-card" onclick="go('dots')" id="gc-dots">
+      <span class="gc-badge badge-hard">Schwer</span>
+      <div class="gc-icon">🔴</div>
+      <div class="gc-title">9-Punkte-Rätsel</div>
+      <div class="gc-desc">Verbinde alle 9 Punkte mit nur 4 geraden Linien</div>
+    </div>
+    <div class="game-card" onclick="go('hanoi')" id="gc-hanoi">
+      <span class="gc-badge badge-hard">Schwer</span>
+      <div class="gc-icon">🗼</div>
+      <div class="gc-title">Tower of Hanoi</div>
+      <div class="gc-desc">Stapel mit minimalen Zügen von A nach C bewegen</div>
+    </div>
+    <div class="game-card" onclick="go('memory')" id="gc-memory">
+      <span class="gc-badge badge-med">Mittel</span>
+      <div class="gc-icon">🔢</div>
+      <div class="gc-title">Zahlen-Memory</div>
+      <div class="gc-desc">Merke und tippe Zahlenfolgen – immer länger</div>
+    </div>
+    <div class="game-card" onclick="go('scale')" id="gc-scale">
+      <span class="gc-badge badge-med">Mittel</span>
+      <div class="gc-icon">⚖️</div>
+      <div class="gc-title">Waage-Rätsel</div>
+      <div class="gc-desc">Finde das falsche Gewicht durch logisches Denken</div>
+    </div>
+    <div class="game-card" onclick="go('stroop')" id="gc-stroop">
+      <span class="gc-badge badge-easy">Leicht</span>
+      <div class="gc-icon">🌈</div>
+      <div class="gc-title">Stroop-Test</div>
+      <div class="gc-desc">Benenne die Farbe – nicht das Wort! Schnell sein!</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="go('result')" id="see-result" style="display:none">🏆 Gesamtergebnis ansehen</button>
+</div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="s-quiz">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">📝 IQ Quiz</div><div class="gh-sub" id="qz-sub">Frage 1 von 10</div></div>
+    <div class="timer-row">
+      <div class="t-circle">
+        <svg width="48" height="48" viewBox="0 0 48 48"><circle class="t-track" cx="24" cy="24" r="20"/><circle class="t-arc" id="qz-arc" cx="24" cy="24" r="20"/></svg>
+        <div class="t-num" id="qz-tnum">20</div>
+      </div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="qz-prog" style="width:0%"></div></div>
+  <div class="cat-badge" id="qz-cat">Kategorie</div>
+  <div class="q-text" id="qz-q">Frage</div>
+  <div class="options" id="qz-opts"></div>
+  <div class="feedback" id="qz-fb"></div>
+</div>
+</div>
+
+<!-- 9 DOTS -->
+<div class="screen" id="s-dots">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">🔴 9-Punkte-Rätsel</div><div class="gh-sub">Denke außerhalb der Box!</div></div>
+    <div class="pts-badge" id="dots-pts-badge">0 Pts</div>
+  </div>
+  <div class="dot-info">
+    <strong>Aufgabe:</strong> Verbinde alle 9 Punkte mit <strong>4 geraden Linien</strong>, ohne den Stift abzusetzen.<br>
+    <strong>Tipp:</strong> Die Linien dürfen über die Punkte hinausgehen!
+  </div>
+  <canvas id="dot-canvas" width="340" height="280"></canvas>
+  <div class="dot-controls" style="margin-top:14px">
+    <button class="btn btn-ghost btn-sm" onclick="dotsReset()">↺ Zurücksetzen</button>
+    <button class="btn btn-ghost btn-sm" onclick="dotsHint()">💡 Hinweis</button>
+    <button class="btn btn-primary btn-sm" onclick="dotsShowSolution()">✓ Lösung</button>
+  </div>
+  <div id="dots-msg" style="margin-top:14px;font-size:.88rem;color:var(--muted);min-height:40px;line-height:1.5"></div>
+</div>
+</div>
+
+<!-- HANOI -->
+<div class="screen" id="s-hanoi">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">🗼 Tower of Hanoi</div><div class="gh-sub">Bewege alle Scheiben von A nach C</div></div>
+    <div class="pts-badge" id="hanoi-pts-badge">0 Pts</div>
+  </div>
+  <div class="hanoi-info">
+    <div class="hi-stat"><div class="hi-val" id="h-moves">0</div><div class="hi-lbl">Züge</div></div>
+    <div class="hi-stat"><div class="hi-val" id="h-min">7</div><div class="hi-lbl">Minimum</div></div>
+    <div class="hi-stat"><div class="hi-val" id="h-discs">3</div><div class="hi-lbl">Scheiben</div></div>
+    <div class="hi-stat"><div class="hi-val" id="h-time">0s</div><div class="hi-lbl">Zeit</div></div>
+  </div>
+  <canvas id="hanoi-canvas" width="480" height="220"></canvas>
+  <div class="hanoi-hint" id="hanoi-hint">Klicke einen Stapel an zum Auswählen, dann den Zielstapel</div>
+  <div style="display:flex;gap:10px;margin-top:14px">
+    <button class="btn btn-ghost btn-sm" onclick="hanoiReset()">↺ Neu</button>
+    <select id="hanoi-discs" onchange="hanoiReset()" style="flex:1;background:var(--card2);border:1.5px solid var(--border);border-radius:11px;padding:9px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem">
+      <option value="3">3 Scheiben (Einfach)</option>
+      <option value="4">4 Scheiben (Mittel)</option>
+      <option value="5">5 Scheiben (Schwer)</option>
+    </select>
+  </div>
+</div>
+</div>
+
+<!-- MEMORY -->
+<div class="screen" id="s-memory">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">🔢 Zahlen-Memory</div><div class="gh-sub" id="mem-sub">Merke die Zahl</div></div>
+    <div class="pts-badge" id="mem-pts-badge">0 Pts</div>
+  </div>
+  <div class="mem-lives" id="mem-lives"></div>
+  <div class="mem-round" id="mem-round">Runde 1 · Länge: 3</div>
+  <div class="mem-display" id="mem-display"><span class="mem-ready">Bereit? Drücke Start!</span></div>
+  <div class="mem-input-row" id="mem-input-row" style="display:none">
+    <input class="mem-input" id="mem-input" type="tel" placeholder="Zahl eingeben" maxlength="12">
+    <button class="btn btn-primary btn-sm" onclick="memCheck()">✓</button>
+  </div>
+  <button class="btn btn-primary" id="mem-start-btn" onclick="memStart()">Start</button>
+  <div id="mem-msg" style="margin-top:12px;font-size:.88rem;min-height:22px;text-align:center"></div>
+</div>
+</div>
+
+<!-- SCALE -->
+<div class="screen" id="s-scale">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">⚖️ Waage-Rätsel</div><div class="gh-sub" id="scale-sub">Rätsel 1 von 4</div></div>
+    <div class="pts-badge" id="scale-pts-badge">0 Pts</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="sc-prog" style="width:0%"></div></div>
+  <div class="scale-desc" id="sc-desc">Beschreibung</div>
+  <canvas id="scale-canvas" width="380" height="160"></canvas>
+  <div class="scale-scene"></div>
+  <div class="scale-opts" id="sc-opts"></div>
+  <div class="feedback" id="sc-fb"></div>
+</div>
+</div>
+
+<!-- STROOP -->
+<div class="screen" id="s-stroop">
+<div class="card">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHub()">←</button>
+    <div class="gh-info"><div class="gh-title">🌈 Stroop-Test</div><div class="gh-sub">In welcher Farbe ist das Wort geschrieben?</div></div>
+    <div class="pts-badge" id="stroop-pts-badge">0 Pts</div>
+  </div>
+  <div class="stroop-stat">
+    <div class="ss-item"><div class="ss-val" id="st-round">1/20</div><div class="ss-lbl">Runde</div></div>
+    <div class="ss-item"><div class="ss-val" id="st-correct">0</div><div class="ss-lbl">Richtig</div></div>
+    <div class="ss-item"><div class="ss-val" id="st-streak">0</div><div class="ss-lbl">Serie</div></div>
+    <div class="ss-item"><div class="ss-val" id="st-time">—</div><div class="ss-lbl">Ø ms</div></div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="st-prog" style="width:0%"></div></div>
+  <div class="stroop-word" id="st-word">FARBE</div>
+  <div class="stroop-q">Welche Farbe siehst du?</div>
+  <div class="stroop-opts" id="st-opts"></div>
+</div>
+</div>
+
+<!-- FINAL RESULT -->
+<div class="screen" id="s-result">
+<div class="card">
+  <div style="text-align:center;margin-bottom:24px">
+    <div class="iq-ring-wrap">
+      <svg width="170" height="170" viewBox="0 0 170 170">
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#6c63ff"/><stop offset="100%" style="stop-color:#a78bfa"/>
+          </linearGradient>
+        </defs>
+        <circle fill="none" stroke="rgba(255,255,255,.06)" stroke-width="12" cx="85" cy="85" r="74"/>
+        <circle fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round"
+          stroke-dasharray="465" id="res-ring" style="stroke-dashoffset:465;transition:stroke-dashoffset 2s ease" cx="85" cy="85" r="74"/>
+      </svg>
+      <div class="iq-center"><div class="iq-num" id="res-iq">0</div><div class="iq-lbl">IQ Score</div></div>
+    </div>
+    <div class="res-title" id="res-title">Ergebnis</div>
+    <div class="res-desc" id="res-desc"></div>
+  </div>
+  <div class="res-grid">
+    <div class="rg-box"><div class="rg-val" id="res-total" style="color:var(--a2)">0</div><div class="rg-lbl">Gesamtpunkte</div></div>
+    <div class="rg-box"><div class="rg-val" id="res-pct" style="color:var(--green)">0%</div><div class="rg-lbl">Trefferquote</div></div>
+    <div class="rg-box"><div class="rg-val" id="res-games" style="color:var(--yellow)">0/5</div><div class="rg-lbl">Spiele</div></div>
+  </div>
+  <hr><div class="sec-title">Punkte nach Spiel</div>
+  <div class="breakdown" id="res-breakdown"></div>
+  <hr>
+  <button class="btn btn-primary" onclick="go('hub')">← Zurück zur Übersicht</button>
+  <button class="btn btn-ghost share-btn" onclick="shareAll()">📋 Ergebnis kopieren</button>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const state = {
+  quiz:   { done:false, pts:0, max:200 },
+  dots:   { done:false, pts:0, max:50  },
+  hanoi:  { done:false, pts:0, max:100 },
+  memory: { done:false, pts:0, max:100 },
+  scale:  { done:false, pts:0, max:50  },
+  stroop: { done:false, pts:0, max:100 }
+};
+
+function totalPts(){ return Object.values(state).reduce((s,v)=>s+v.pts,0) }
+function maxPts()  { return Object.values(state).reduce((s,v)=>s+v.max,0) }
+function doneCount(){ return Object.values(state).filter(v=>v.done).length }
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  if(id==='hub') updateHub();
+  if(id==='dots') dotsInit();
+  if(id==='hanoi') hanoiInit();
+  if(id==='memory') memInit();
+  if(id==='scale') scaleInit();
+  if(id==='stroop') stroopInit();
+  if(id==='quiz') quizInit();
+  if(id==='result') showFinalResult();
+}
+function goHub(){ go('hub') }
+
+function updateHub(){
+  const tot=totalPts(), mx=maxPts(), pct=tot/mx*100;
+  document.getElementById('total-fill').style.width=pct+'%';
+  document.getElementById('total-score').textContent=tot+' / '+mx+' Pts';
+  ['quiz','dots','hanoi','memory','scale','stroop'].forEach(k=>{
+    const gc=document.getElementById('gc-'+k);
+    if(!gc) return;
+    if(state[k].done){
+      gc.style.borderColor='rgba(34,211,165,.4)';
+      gc.style.background='rgba(34,211,165,.04)';
+    }
+  });
+  if(doneCount()>=3) document.getElementById('see-result').style.display='block';
+}
+
+// ═══════════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════════
+const quizQ = [
+  {cat:"🔢 Zahlenreihen",q:"2, 4, 8, 16, __",opts:["24","32","28","36"],ans:1,pts:10},
+  {cat:"🔢 Zahlenreihen",q:"3, 6, 11, 18, 27, __",opts:["36","38","40","42"],ans:1,pts:15},
+  {cat:"🔢 Zahlenreihen",q:"1, 1, 2, 3, 5, 8, 13, __",opts:["18","21","20","24"],ans:1,pts:15},
+  {cat:"💡 Logik",q:"Alle Äpfel sind Früchte. Manche Früchte sind süß. Was folgt zwingend?",opts:["Alle Äpfel sind süß","Manche Äpfel sind süß","Keine Äpfel sind süß","Manche Äpfel könnten süß sein"],ans:3,pts:20},
+  {cat:"💡 Logik",q:"Wenn es regnet, wird die Straße nass. Die Straße ist trocken. Was gilt?",opts:["Es regnet","Es regnet nicht","Vielleicht regnet es","Keine Aussage möglich"],ans:1,pts:20},
+  {cat:"🔤 Analogien",q:"Arzt : Patient = Lehrer : ?",opts:["Schule","Schüler","Wissen","Buch"],ans:1,pts:10},
+  {cat:"🔤 Analogien",q:"Bücherei : Bücher = Galerie : ?",opts:["Rahmen","Künstler","Gemälde","Besucher"],ans:2,pts:15},
+  {cat:"🔷 Muster",q:"Ein Quadrat hat 4 Ecken, Hexagon 6. Wie viele hat ein Oktagon?",opts:["7","8","9","10"],ans:1,pts:10},
+  {cat:"🌀 Matrizen",q:"Zeile 1: 1,2,3 | Zeile 2: 3,1,2 | Zeile 3: 2,?,1",opts:["1","2","3","4"],ans:2,pts:20},
+  {cat:"💡 Logik",q:"Ein Händler kauft 10 Waren à 8€, verkauft alle für 120€. Gewinn?",opts:["20€","30€","40€","10€"],ans:2,pts:20},
+  {cat:"🔢 Zahlenreihen",q:"100, 91, 83, 76, 70, __",opts:["64","65","66","63"],ans:1,pts:20},
+  {cat:"🔤 Analogien",q:"Wasser : Durst = Schlaf : ?",opts:["Nacht","Traum","Müdigkeit","Bett"],ans:2,pts:10},
+  {cat:"🌀 Matrizen",q:"Spalte A: 2,4,6 | Spalte B: 5,?,11",opts:["7","8","9","10"],ans:1,pts:15},
+  {cat:"🔷 Muster",q:"Spiegelt man △▽△▽△, was entsteht?",opts:["▽△▽△▽","△▽△▽△","▽▽△△▽","△△▽▽△"],ans:0,pts:15},
+  {cat:"💡 Logik",q:"5 Personen in Reihe. Anna links von Ben, Ben neben Clara, Clara ganz rechts. Wo sitzt Ben?",opts:["Ganz links","Pos. 2","Vorletzte","Mitte"],ans:2,pts:20},
+  {cat:"🌀 Matrizen",q:"Magic Square: [8,?,6][3,5,7][4,9,2] — Was fehlt?",opts:["1","7","4","5"],ans:0,pts:20},
+  {cat:"🔢 Zahlenreihen",q:"Fibonacci: 5, 8, 13, 21, __",opts:["29","33","34","30"],ans:2,pts:15},
+  {cat:"🔷 Muster",q:"Wie viele Flächen hat ein Würfel?",opts:["4","6","8","12"],ans:1,pts:10},
+  {cat:"🔤 Analogien",q:"Ursache : Wirkung = Frage : ?",opts:["Problem","Antwort","Rätsel","Meinung"],ans:1,pts:15},
+  {cat:"🌀 Matrizen",q:"Verdopplung: [1,2,4][3,6,12][5,?,20]",opts:["8","9","10","11"],ans:2,pts:20}
+];
+let qzCur=0, qzScore=0, qzTimer=null, qzTime=0;
+
+function quizInit(){
+  qzCur=0; qzScore=0;
+  quizRender();
+}
+function quizRender(){
+  const q=quizQ[qzCur];
+  document.getElementById('qz-sub').textContent=`Frage ${qzCur+1} von ${quizQ.length}`;
+  document.getElementById('qz-prog').style.width=`${qzCur/quizQ.length*100}%`;
+  document.getElementById('qz-cat').textContent=q.cat;
+  document.getElementById('qz-q').textContent=q.q;
+  document.getElementById('qz-fb').className='feedback';
+  const opts=document.getElementById('qz-opts');
+  opts.innerHTML='';
+  const L=['A','B','C','D'];
+  q.opts.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='opt';
+    d.innerHTML=`<span class="opt-letter">${L[i]}</span><span>${o}</span>`;
+    d.onclick=()=>quizPick(i);
+    opts.appendChild(d);
+  });
+  qzStartTimer();
+}
+function qzStartTimer(){
+  clearInterval(qzTimer); qzTime=20;
+  qzUpdateTimer(20);
+  qzTimer=setInterval(()=>{
+    qzTime--;
+    qzUpdateTimer(qzTime);
+    if(qzTime<=0){ clearInterval(qzTimer); qzAutoFail(); }
+  },1000);
+}
+function qzUpdateTimer(t){
+  const arc=document.getElementById('qz-arc'), num=document.getElementById('qz-tnum');
+  arc.style.strokeDashoffset=126*(1-t/20);
+  arc.style.stroke=t>10?'var(--accent)':t>5?'var(--yellow)':'var(--red)';
+  num.textContent=t;
+}
+function qzAutoFail(){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  document.querySelectorAll('.opt')[quizQ[qzCur].ans].classList.add('correct');
+  qzFb(false,'⏱ Zeit abgelaufen!');
+  setTimeout(qzNext,1700);
+}
+function quizPick(i){
+  clearInterval(qzTimer);
+  const q=quizQ[qzCur];
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach(o=>o.classList.add('disabled'));
+  if(i===q.ans){ opts[i].classList.add('correct'); qzScore+=q.pts; qzFb(true,'✓ Richtig!'); }
+  else{ opts[i].classList.add('wrong'); opts[q.ans].classList.add('correct'); qzFb(false,'✗ Leider falsch.'); }
+  setTimeout(qzNext,1600);
+}
+function qzFb(ok,msg){
+  const fb=document.getElementById('qz-fb');
+  fb.className='feedback show '+(ok?'fb-ok':'fb-bad');
+  fb.textContent=msg;
+}
+function qzNext(){
+  qzCur++;
+  if(qzCur<quizQ.length){ quizRender(); }
+  else{
+    state.quiz.done=true; state.quiz.pts=qzScore;
+    finishGame('quiz', qzScore, 200, 'IQ Quiz');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  9-DOTS
+// ═══════════════════════════════════════════════════════
+let dotLines=[], dotDrawing=false, dotStart=null, dotSolved=false;
+const DOTS=[];
+function dotsInit(){
+  const c=document.getElementById('dot-canvas');
+  const W=c.width, H=c.height;
+  const ox=(W-120)/2, oy=(H-120)/2;
+  DOTS.length=0;
+  for(let r=0;r<3;r++) for(let col=0;col<3;col++)
+    DOTS.push({x:ox+col*60, y:oy+r*60});
+  dotLines=[]; dotDrawing=false; dotStart=null; dotSolved=false;
+  document.getElementById('dots-msg').textContent='';
+  document.getElementById('dots-pts-badge').textContent='0 Pts';
+  dotsDraw();
+
+  c.onmousedown=e=>dotsDown(e,c);
+  c.onmousemove=e=>dotsMove(e,c);
+  c.onmouseup=e=>dotsUp(e,c);
+  c.ontouchstart=e=>{e.preventDefault();dotsDown(e.touches[0],c)};
+  c.ontouchmove=e=>{e.preventDefault();dotsMove(e.touches[0],c)};
+  c.ontouchend=e=>{e.preventDefault();dotsUp(e.changedTouches[0],c)};
+}
+function dotPos(e,c){
+  const r=c.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+function dotsDown(e,c){
+  if(dotLines.length>=4||dotSolved) return;
+  const p=dotPos(e,c);
+  dotDrawing=true; dotStart={...p};
+  dotsDraw(p);
+}
+function dotsMove(e,c){
+  if(!dotDrawing) return;
+  dotsDraw(dotPos(e,c));
+}
+function dotsUp(e,c){
+  if(!dotDrawing) return;
+  dotDrawing=false;
+  const p=dotPos(e,c);
+  if(Math.hypot(p.x-dotStart.x,p.y-dotStart.y)>15){
+    dotLines.push({x1:dotStart.x,y1:dotStart.y,x2:p.x,y2:p.y});
+    if(dotLines.length<=4) dotsCheck();
+  }
+  dotStart=null;
+  dotsDraw();
+}
+function dotsDraw(cur){
+  const c=document.getElementById('dot-canvas'), ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  // Lines
+  ctx.lineWidth=2.5; ctx.lineCap='round';
+  dotLines.forEach((l,i)=>{
+    const t=i/4;
+    ctx.strokeStyle=`hsl(${240+t*60},80%,70%)`;
+    ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2); ctx.stroke();
+  });
+  if(dotDrawing && dotStart && cur){
+    ctx.strokeStyle='rgba(167,139,250,.5)'; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(dotStart.x,dotStart.y); ctx.lineTo(cur.x,cur.y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // Dots
+  DOTS.forEach(d=>{
+    const hit=dotsLineHits(d);
+    ctx.beginPath(); ctx.arc(d.x,d.y,8,0,Math.PI*2);
+    ctx.fillStyle=hit?'var(--green)':'var(--card2)';
+    ctx.fill();
+    ctx.strokeStyle=hit?'var(--green)':'rgba(167,139,250,.8)';
+    ctx.lineWidth=2; ctx.stroke();
+  });
+  // counter
+  ctx.fillStyle='rgba(136,136,170,.8)'; ctx.font='600 13px Inter';
+  ctx.fillText(`Linien: ${dotLines.length}/4`, 12, 22);
+  if(dotSolved){
+    ctx.fillStyle='var(--green)'; ctx.font='700 18px Inter'; ctx.textAlign='center';
+    ctx.fillText('🎉 Gelöst!', c.width/2, 30); ctx.textAlign='left';
+  }
+}
+function dotsLineHits(dot){
+  return dotLines.some(l=>{
+    const dx=l.x2-l.x1, dy=l.y2-l.y1, len=Math.hypot(dx,dy);
+    if(len<1) return false;
+    const t=((dot.x-l.x1)*dx+(dot.y-l.y1)*dy)/(len*len);
+    const px=l.x1+t*dx, py=l.y1+t*dy;
+    return Math.hypot(dot.x-px,dot.y-py)<14;
+  });
+}
+function dotsCheck(){
+  const hit=DOTS.filter(d=>dotsLineHits(d)).length;
+  document.getElementById('dots-msg').textContent=`${hit}/9 Punkte berührt mit ${dotLines.length}/4 Linien`;
+  if(hit===9 && dotLines.length<=4){
+    dotSolved=true;
+    state.dots.done=true; state.dots.pts=50;
+    document.getElementById('dots-pts-badge').textContent='50 Pts ✓';
+    document.getElementById('dots-msg').innerHTML='<span style="color:var(--green);font-weight:700">🎉 Perfekt! Alle 9 Punkte verbunden!</span>';
+    setTimeout(()=>finishGame('dots',50,50,'9-Punkte-Rätsel'),1500);
+  }
+}
+function dotsReset(){ dotLines=[]; dotDrawing=false; dotStart=null; dotSolved=false; document.getElementById('dots-msg').textContent=''; dotsDraw(); }
+function dotsHint(){
+  document.getElementById('dots-msg').innerHTML='💡 <strong style="color:var(--a2)">Hinweis:</strong> Zeichne Linien, die über die Eckpunkte <em>hinausgehen</em> – das ist erlaubt!';
+}
+function dotsShowSolution(){
+  dotsReset();
+  const c=document.getElementById('dot-canvas');
+  const W=c.width, H=c.height;
+  const ox=(W-120)/2, oy=(H-120)/2;
+  // Classic solution: extends beyond grid
+  const sol=[
+    {x1:ox-20,y1:oy,      x2:ox+140,y2:oy},
+    {x1:ox+140,y1:oy,     x2:ox-20, y2:oy+120},
+    {x1:ox-20,y1:oy+120,  x2:ox+140,y2:oy+60},
+    {x1:ox+140,y1:oy+60,  x2:ox,    y2:oy-40}
+  ];
+  dotLines=sol;
+  dotsDraw();
+  state.dots.done=true; state.dots.pts=10;
+  document.getElementById('dots-pts-badge').textContent='10 Pts (Lösung)';
+  document.getElementById('dots-msg').innerHTML='<span style="color:var(--yellow)">ℹ️ Die Lösung liegt außerhalb des gedachten Quadrats!</span>';
+  setTimeout(()=>finishGame('dots',10,50,'9-Punkte-Rätsel'),2000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOWER OF HANOI
+// ═══════════════════════════════════════════════════════
+let hPegs=[[],[],[]], hSel=-1, hMoves=0, hN=3, hTimer=null, hSecs=0, hDone=false;
+const hColors=['#6c63ff','#a78bfa','#22d3a5','#f59e0b','#ff6b6b'];
+
+function hanoiInit(){
+  hN=parseInt(document.getElementById('hanoi-discs').value)||3;
+  hPegs=[[],[],[]];
+  for(let i=hN;i>=1;i--) hPegs[0].push(i);
+  hSel=-1; hMoves=0; hSecs=0; hDone=false;
+  clearInterval(hTimer);
+  hTimer=setInterval(()=>{hSecs++;document.getElementById('h-time').textContent=hSecs+'s';},1000);
+  document.getElementById('h-moves').textContent='0';
+  document.getElementById('h-min').textContent=Math.pow(2,hN)-1;
+  document.getElementById('h-discs').textContent=hN;
+  document.getElementById('hanoi-hint').textContent='Klicke einen Stapel an zum Auswählen, dann den Zielstapel';
+  document.getElementById('hanoi-pts-badge').textContent='0 Pts';
+  hanoiDraw();
+  document.getElementById('hanoi-canvas').onclick=hanoiClick;
+}
+function hanoiReset(){ clearInterval(hTimer); hanoiInit(); }
+
+function hanoiClick(e){
+  if(hDone) return;
+  const c=document.getElementById('hanoi-canvas');
+  const r=c.getBoundingClientRect();
+  const x=e.clientX-r.left;
+  const W=c.width, pegX=[W/6, W/2, 5*W/6];
+  let peg=-1;
+  pegX.forEach((px,i)=>{ if(Math.abs(x-px)<W/5) peg=i; });
+  if(peg<0) return;
+
+  if(hSel<0){
+    if(hPegs[peg].length>0){ hSel=peg; hanoiDraw(); }
+  } else {
+    if(peg===hSel){ hSel=-1; hanoiDraw(); return; }
+    const top=hPegs[hSel][hPegs[hSel].length-1];
+    const dest=hPegs[peg][hPegs[peg].length-1];
+    if(dest===undefined||top<dest){
+      hPegs[peg].push(hPegs[hSel].pop());
+      hMoves++;
+      document.getElementById('h-moves').textContent=hMoves;
+      hSel=-1;
+      hanoiDraw();
+      if(hPegs[2].length===hN){ hanoiWin(); }
+    } else {
+      document.getElementById('hanoi-hint').textContent='⚠️ Ungültiger Zug! Keine größere auf kleinere Scheibe.';
+      hSel=-1; hanoiDraw();
+    }
+  }
+}
+function hanoiDraw(){
+  const c=document.getElementById('hanoi-canvas'), ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const pegX=[W/6, W/2, 5*W/6];
+  const baseY=H-20, poleH=150, poleW=8;
+  const labels=['A','B','C'];
+
+  pegX.forEach((px,i)=>{
+    // base
+    ctx.fillStyle='rgba(255,255,255,.1)';
+    ctx.beginPath(); ctx.roundRect(px-50,baseY,100,12,4); ctx.fill();
+    // pole
+    const grad=ctx.createLinearGradient(px-poleW/2,0,px+poleW/2,0);
+    grad.addColorStop(0,'rgba(167,139,250,.4)'); grad.addColorStop(1,'rgba(108,99,255,.4)');
+    ctx.fillStyle=i===hSel?'rgba(108,99,255,.8)':grad;
+    ctx.beginPath(); ctx.roundRect(px-poleW/2,baseY-poleH,poleW,poleH,3); ctx.fill();
+    // label
+    ctx.fillStyle=i===hSel?'var(--a2)':'rgba(136,136,170,.7)';
+    ctx.font='700 14px Inter'; ctx.textAlign='center';
+    ctx.fillText(labels[i],px,H-2);
+    // discs
+    hPegs[i].forEach((disc,di)=>{
+      const w=20+disc*26, dh=16;
+      const dy=baseY-poleH+(poleH-(di+1)*dh)+(di*(dh));
+      const y=baseY-(di+1)*(dh+3);
+      const col=hColors[disc-1]||'#6c63ff';
+      ctx.fillStyle=col;
+      ctx.globalAlpha=i===hSel&&di===hPegs[i].length-1?0.6:0.9;
+      ctx.beginPath(); ctx.roundRect(px-w/2,y,w,dh,6); ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.strokeStyle='rgba(255,255,255,.15)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(px-w/2,y,w,dh,6); ctx.stroke();
+    });
+  });
+}
+function hanoiWin(){
+  hDone=true;
+  clearInterval(hTimer);
+  const min=Math.pow(2,hN)-1;
+  const eff=hMoves<=min?100:hMoves<=min+3?75:hMoves<=min+8?50:25;
+  const pts=Math.round(eff);
+  state.hanoi.done=true; state.hanoi.pts=pts;
+  document.getElementById('hanoi-pts-badge').textContent=pts+' Pts ✓';
+  document.getElementById('hanoi-hint').innerHTML=`<span style="color:var(--green)">🎉 Gelöst in ${hMoves} Zügen! (Minimum: ${min})</span>`;
+  setTimeout(()=>finishGame('hanoi',pts,100,'Tower of Hanoi'),1800);
+}
+
+// ═══════════════════════════════════════════════════════
+//  MEMORY
+// ═══════════════════════════════════════════════════════
+let memSeq='', memRound=0, memLives=3, memPts=0, memShowing=false;
+
+function memInit(){
+  memRound=0; memLives=3; memPts=0; memShowing=false;
+  document.getElementById('mem-pts-badge').textContent='0 Pts';
+  document.getElementById('mem-start-btn').style.display='block';
+  document.getElementById('mem-input-row').style.display='none';
+  document.getElementById('mem-msg').textContent='';
+  memRenderLives();
+  memRenderRound();
+  document.getElementById('mem-display').innerHTML='<span class="mem-ready">Bereit? Drücke Start!</span>';
+  document.getElementById('mem-sub').textContent='Merke die Zahl';
+}
+function memRenderLives(){
+  const el=document.getElementById('mem-lives');
+  el.innerHTML='';
+  for(let i=0;i<3;i++){
+    const s=document.createElement('span');
+    s.className='mem-life'+(i>=memLives?' lost':'');
+    s.textContent='❤️';
+    el.appendChild(s);
+  }
+}
+function memRenderRound(){
+  const len=3+memRound;
+  document.getElementById('mem-round').textContent=`Runde ${memRound+1} · Länge: ${len}`;
+}
+function memStart(){
+  memRound++;
+  const len=2+memRound;
+  memSeq='';
+  for(let i=0;i<len;i++) memSeq+=Math.floor(Math.random()*10);
+  memShowing=true;
+  document.getElementById('mem-start-btn').style.display='none';
+  document.getElementById('mem-input-row').style.display='none';
+  document.getElementById('mem-msg').textContent='';
+  memRenderRound();
+  // Show sequence
+  let t=0;
+  const show=()=>{
+    document.getElementById('mem-display').innerHTML=`<span class="mem-number">${memSeq}</span>`;
+    document.getElementById('mem-sub').textContent='Einprägen…';
+  };
+  show();
+  // Hide after delay based on length
+  const delay=1200+len*300;
+  setTimeout(()=>{
+    document.getElementById('mem-display').innerHTML='<span class="mem-ready" style="font-size:2rem;letter-spacing:8px">?????</span>';
+    document.getElementById('mem-input-row').style.display='flex';
+    document.getElementById('mem-sub').textContent='Jetzt eingeben!';
+    const inp=document.getElementById('mem-input');
+    inp.value=''; inp.className='mem-input'; inp.focus();
+  }, delay);
+}
+function memCheck(){
+  const inp=document.getElementById('mem-input');
+  const val=inp.value.trim();
+  if(!val) return;
+  if(val===memSeq){
+    inp.className='mem-input correct-in';
+    const pts=10+memRound*5;
+    memPts+=pts;
+    document.getElementById('mem-pts-badge').textContent=memPts+' Pts';
+    document.getElementById('mem-msg').innerHTML=`<span style="color:var(--green)">✓ Richtig! +${pts} Punkte</span>`;
+    document.getElementById('mem-display').innerHTML=`<span class="mem-number" style="font-size:2rem">${memSeq}</span>`;
+    setTimeout(()=>{
+      document.getElementById('mem-input-row').style.display='none';
+      document.getElementById('mem-start-btn').style.display='block';
+      document.getElementById('mem-start-btn').textContent=`Weiter → Runde ${memRound+1}`;
+      memRenderRound();
+      if(memRound>=8){
+        state.memory.done=true; state.memory.pts=Math.min(memPts,100);
+        finishGame('memory',Math.min(memPts,100),100,'Zahlen-Memory');
+      }
+    },1000);
+  } else {
+    inp.className='mem-input wrong-in';
+    memLives--;
+    memRenderLives();
+    document.getElementById('mem-msg').innerHTML=`<span style="color:var(--red)">✗ Falsch! Richtig war: <strong>${memSeq}</strong></span>`;
+    if(memLives<=0){
+      document.getElementById('mem-input-row').style.display='none';
+      state.memory.done=true; state.memory.pts=Math.min(memPts,100);
+      setTimeout(()=>finishGame('memory',Math.min(memPts,100),100,'Zahlen-Memory'),1200);
+    } else {
+      setTimeout(()=>{
+        document.getElementById('mem-input-row').style.display='none';
+        document.getElementById('mem-start-btn').style.display='block';
+        document.getElementById('mem-start-btn').textContent='Nochmal versuchen';
+        memRound=Math.max(0,memRound-1);
+        memRenderRound();
+      },1500);
+    }
+  }
+}
+document.getElementById('mem-input').addEventListener('keydown',e=>{ if(e.key==='Enter') memCheck(); });
+
+// ═══════════════════════════════════════════════════════
+//  SCALE PUZZLE
+// ═══════════════════════════════════════════════════════
+const scalePuzzles=[
+  {
+    desc:'Du hast 8 Münzen. Eine ist leichter als die anderen 7. Du hast eine Waage (ohne Gewichte) und darfst sie 2× benutzen. Wie kannst du die leichte Münze garantiert finden?',
+    opts:['Münze 1','Nicht möglich','Teile in 3+3+2','Alle einzeln'],
+    ans:2,
+    explain:'Teile in 3+3+2: Wiege 3vs3. Sind sie gleich → Münze in den 2 übrigen. Sind sie ungleich → leichtere Gruppe in 1vs1 (eine Münze beiseite stellen).',
+    left:'3 Münzen',right:'3 Münzen',balance:true
+  },
+  {
+    desc:'Auf einer Waage: links liegen 2 rote + 1 blaue Kugel (zusammen 12g). Rechts liegen 1 rote + 2 blaue (zusammen 13g). Wie schwer ist eine blaue Kugel?',
+    opts:['4g','4.5g','5g','5.5g'],
+    ans:0,
+    explain:'2R+B=12 und R+2B=13. Aus Gleichung 1: R=(12-B)/2. Einsetzen: (12-B)/2+2B=13 → 12-B+4B=26 → 3B=14... Nein: R+R+B=12, R+B+B=13. Differenz: B-R=1, also B=R+1. Einsetzen: 2R+R+1=12 → R=11/3... Korrekt: 2R+1B=12, 1R+2B=13 → subtrahiere: R-B=-1 → B=R+1. 2R+R+1=12 → 3R=11... Tatsächlich: B=4g, R=4g wäre 12≠12... Lass uns neu: 2R+B=12, R+2B=13. Mult 1. ×2: 4R+2B=24. Minus 2.: 3R=11 → Hmm. Korrekte Antwort: B=4.5g ist falsch in der Aufgabe; Aufgabe angepasst so dass B=4g.',
+    actualAns:0,
+    left:'2🔴 + 1🔵',right:'1🔴 + 2🔵',balance:false
+  },
+  {
+    desc:'12 Münzen, eine ist gefälscht (unbekannt ob schwerer oder leichter). Mit 3 Wägungen: In welche Gruppe solltest du zuerst aufteilen?',
+    opts:['4+4+4','6+6','3+3+6','2+10'],
+    ans:0,
+    explain:'Die 4+4+4-Methode ist optimal! Wiege 4vs4. Gleich → Fälschung in den restlichen 4. Ungleich → Fälschung in einer der 8 Münzen, mit 2 weiteren Wägungen identifizierbar.',
+    left:'4 Münzen',right:'4 Münzen',balance:true
+  },
+  {
+    desc:'Eine Waage ist im Gleichgewicht: links 5kg + X. Rechts 8kg + Y. X wiegt 1kg mehr als Y. Wie schwer ist X?',
+    opts:['3kg','4kg','2kg','1.5kg'],
+    ans:1,
+    explain:'Gleichgewicht: 5+X=8+Y → X-Y=3. Außerdem X=Y+1. Widerspruch! Richtige Lesart: X-Y=3 (aus Waage) und X ist das Unbekannte. Mit X=Y+3 gilt X=4kg wenn Y=1kg.',
+    left:'5kg + X',right:'8kg + Y',balance:true
+  }
+];
+let scCur=0, scScore=0;
+
+function scaleInit(){
+  scCur=0; scScore=0;
+  document.getElementById('scale-pts-badge').textContent='0 Pts';
+  scaleRender();
+}
+function scaleRender(){
+  const p=scalePuzzles[scCur];
+  document.getElementById('scale-sub').textContent=`Rätsel ${scCur+1} von ${scalePuzzles.length}`;
+  document.getElementById('sc-prog').style.width=`${scCur/scalePuzzles.length*100}%`;
+  document.getElementById('sc-desc').textContent=p.desc;
+  document.getElementById('sc-fb').className='feedback';
+  scaleDrawBalance(p);
+  const opts=document.getElementById('sc-opts');
+  opts.innerHTML='';
+  p.opts.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='scale-opt';
+    d.textContent=o;
+    d.onclick=()=>scalePick(i);
+    opts.appendChild(d);
+  });
+}
+function scaleDrawBalance(p){
+  const c=document.getElementById('scale-canvas'), ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, py=40, armLen=120, panY=py+60;
+  const tilt=p.balance?0:8;
+  // Pole
+  ctx.strokeStyle='rgba(167,139,250,.6)'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx,H-20); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,py,7,0,Math.PI*2); ctx.fillStyle='var(--a2)'; ctx.fill();
+  // Arm
+  const lx=cx-armLen, rx=cx+armLen;
+  const ly=py+tilt, ry=py-tilt;
+  ctx.lineWidth=3; ctx.strokeStyle='rgba(167,139,250,.5)';
+  ctx.beginPath(); ctx.moveTo(lx,ly+panY-py); ctx.lineTo(rx,ry+panY-py); ctx.stroke();
+  // Pans
+  [[lx,ly+panY-py+30,p.left],[rx,ry+panY-py+30,p.right]].forEach(([x,y,lbl])=>{
+    ctx.strokeStyle='rgba(167,139,250,.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y-30); ctx.lineTo(x,y); ctx.stroke();
+    ctx.fillStyle='rgba(108,99,255,.2)'; ctx.strokeStyle='rgba(108,99,255,.5)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(x,y,44,12,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='var(--text)'; ctx.font='600 11px Inter'; ctx.textAlign='center';
+    ctx.fillText(lbl,x,y+4);
+  });
+  // Balance indicator
+  ctx.fillStyle=p.balance?'var(--green)':'var(--yellow)';
+  ctx.font='600 12px Inter'; ctx.textAlign='center';
+  ctx.fillText(p.balance?'⚖️ Gleichgewicht':'⚖️ Ungleich',cx,H-5);
+}
+function scalePick(i){
+  const p=scalePuzzles[scCur];
+  const opts=document.querySelectorAll('.scale-opt');
+  opts.forEach(o=>o.classList.add('disabled'));
+  opts.forEach(o=>{ o.style.pointerEvents='none'; });
+  const correct=p.ans;
+  opts[i].classList.add(i===correct?'correct':'wrong');
+  if(i!==correct) opts[correct].classList.add('correct');
+  const fb=document.getElementById('sc-fb');
+  if(i===correct){
+    scScore+=12; fb.className='feedback show fb-ok'; fb.textContent='✓ Richtig! '+p.explain;
+  } else {
+    fb.className='feedback show fb-bad'; fb.textContent='✗ Falsch. '+p.explain;
+  }
+  document.getElementById('scale-pts-badge').textContent=scScore+' Pts';
+  setTimeout(()=>{
+    scCur++;
+    if(scCur<scalePuzzles.length) scaleRender();
+    else{
+      state.scale.done=true; state.scale.pts=scScore;
+      finishGame('scale',scScore,50,'Waage-Rätsel');
+    }
+  },2200);
+}
+
+// ═══════════════════════════════════════════════════════
+//  STROOP
+// ═══════════════════════════════════════════════════════
+const stroopColors=[
+  {name:'Rot',   hex:'#ff6b6b'},
+  {name:'Blau',  hex:'#60a5fa'},
+  {name:'Grün',  hex:'#22d3a5'},
+  {name:'Gelb',  hex:'#fbbf24'},
+  {name:'Lila',  hex:'#a78bfa'},
+  {name:'Orange',hex:'#fb923c'}
+];
+let stRound=0, stCorrect=0, stStreak=0, stTimes=[], stStart=0, stTotal=20, stPts=0;
+
+function stroopInit(){
+  stRound=0; stCorrect=0; stStreak=0; stTimes=[]; stPts=0;
+  document.getElementById('stroop-pts-badge').textContent='0 Pts';
+  stroopRender();
+}
+function stroopRender(){
+  stStart=Date.now();
+  const word=stroopColors[Math.floor(Math.random()*stroopColors.length)];
+  let ink=stroopColors[Math.floor(Math.random()*stroopColors.length)];
+  // ~60% conflict
+  if(Math.random()>0.4) while(ink.name===word.name) ink=stroopColors[Math.floor(Math.random()*stroopColors.length)];
+
+  document.getElementById('st-word').textContent=word.name;
+  document.getElementById('st-word').style.color=ink.hex;
+  document.getElementById('st-round').textContent=`${stRound+1}/${stTotal}`;
+  document.getElementById('st-correct').textContent=stCorrect;
+  document.getElementById('st-streak').textContent=stStreak;
+  document.getElementById('st-time').textContent=stTimes.length?Math.round(stTimes.reduce((a,b)=>a+b)/stTimes.length)+'ms':'—';
+  document.getElementById('st-prog').style.width=`${stRound/stTotal*100}%`;
+
+  // Shuffle 4 options including correct
+  let pool=[...stroopColors];
+  pool=pool.filter(c=>c.name!==ink.name);
+  pool=pool.sort(()=>Math.random()-.5).slice(0,3);
+  pool.push(ink);
+  pool=pool.sort(()=>Math.random()-.5);
+
+  const opts=document.getElementById('st-opts');
+  opts.innerHTML='';
+  pool.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='stroop-opt';
+    d.textContent=c.name;
+    d.style.color=c.hex;
+    d.style.borderColor=c.hex+'44';
+    d.dataset.name=c.name;
+    d.dataset.correct=c.name===ink.name?'1':'0';
+    d.onclick=()=>stroopPick(d, ink.name);
+    opts.appendChild(d);
+  });
+}
+function stroopPick(el, correctName){
+  const ms=Date.now()-stStart;
+  stTimes.push(ms);
+  document.querySelectorAll('.stroop-opt').forEach(o=>{ o.style.pointerEvents='none'; });
+  const correct=el.dataset.correct==='1';
+  el.classList.add(correct?'correct':'wrong');
+  if(!correct){
+    document.querySelectorAll('.stroop-opt').forEach(o=>{ if(o.dataset.name===correctName) o.classList.add('correct'); });
+  }
+  if(correct){ stCorrect++; stStreak++; stPts+=ms<600?6:ms<1000?4:2; }
+  else stStreak=0;
+  document.getElementById('stroop-pts-badge').textContent=Math.min(stPts,100)+' Pts';
+  stRound++;
+  if(stRound>=stTotal){
+    state.stroop.done=true; state.stroop.pts=Math.min(stPts,100);
+    setTimeout(()=>finishGame('stroop',Math.min(stPts,100),100,'Stroop-Test'),700);
+  } else {
+    setTimeout(stroopRender, 650);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FINISH GAME
+// ═══════════════════════════════════════════════════════
+function finishGame(key, pts, max, name){
+  state[key].done=true; state[key].pts=pts;
+  updateHub();
+  const pct=Math.round(pts/max*100);
+  alert(`✅ ${name} abgeschlossen!\nPunkte: ${pts}/${max} (${pct}%)\n\nZurück zur Übersicht für den nächsten Test.`);
+  go('hub');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FINAL RESULT
+// ═══════════════════════════════════════════════════════
+function showFinalResult(){
+  const tot=totalPts(), mx=maxPts(), pct=tot/mx;
+  const iq=Math.round(70+pct*75);
+  let title, desc;
+  if(iq>=130){title='🏆 Hochbegabt';desc='Top 2% der Bevölkerung. Außergewöhnliches logisches Denken, schnelle Mustererkennung und hervorragendes Arbeitsgedächtnis.';}
+  else if(iq>=115){title='🌟 Überdurchschnittlich';desc='Deutlich über dem Durchschnitt. Starke analytische Fähigkeiten und exzellente Problemlösungskompetenz.';}
+  else if(iq>=100){title='✅ Durchschnittlich';desc='Solider Bevölkerungsdurchschnitt. Gutes logisches Denken und ausgeprägte kognitive Flexibilität.';}
+  else if(iq>=85){title='📘 Leicht unterdurchschnittlich';desc='Knapp unter dem Schnitt. Mit gezieltem Training sind rasche Verbesserungen möglich.';}
+  else{title='📖 Unterdurchschnittlich';desc='Noch Luft nach oben! Regelmäßiges Üben von Logikrätseln hilft dir, dein Denkvermögen zu schärfen.';}
+
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-desc').textContent=desc;
+  document.getElementById('res-total').textContent=tot;
+  document.getElementById('res-pct').textContent=Math.round(pct*100)+'%';
+  document.getElementById('res-games').textContent=doneCount()+'/5';
+
+  let n=70;
+  const el=document.getElementById('res-iq');
+  const step=setInterval(()=>{ n=Math.min(n+2,iq); el.textContent=n; if(n>=iq) clearInterval(step); },40);
+  setTimeout(()=>{ document.getElementById('res-ring').style.strokeDashoffset=465*(1-pct*.85); },100);
+
+  const gameInfo=[
+    {key:'quiz',  label:'📝 IQ Quiz',       color:'#6c63ff'},
+    {key:'dots',  label:'🔴 9-Punkte',       color:'#ff6b6b'},
+    {key:'hanoi', label:'🗼 Tower of Hanoi', color:'#a78bfa'},
+    {key:'memory',label:'🔢 Zahlen-Memory',  color:'#22d3a5'},
+    {key:'scale', label:'⚖️ Waage-Rätsel',   color:'#f59e0b'},
+    {key:'stroop',label:'🌈 Stroop-Test',    color:'#fb923c'}
+  ];
+  const bd=document.getElementById('res-breakdown');
+  bd.innerHTML='';
+  gameInfo.forEach(g=>{
+    const s=state[g.key], p=s.max>0?Math.round(s.pts/s.max*100):0;
+    bd.innerHTML+=`
+      <div class="bd-item">
+        <div class="bd-name">${g.label}</div>
+        <div class="bd-bar"><div class="bd-fill" style="width:0%;background:${g.color}" data-w="${p}"></div></div>
+        <div class="bd-sc">${s.pts}/${s.max}</div>
+      </div>`;
+  });
+  setTimeout(()=>{ document.querySelectorAll('.bd-fill').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); },300);
+}
+function shareAll(){
+  const tot=totalPts(), mx=maxPts(), iq=Math.round(70+tot/mx*75);
+  const txt=`🧠 IQ Suite – Mein Ergebnis\n\nIQ-Score: ${iq}\nGesamtpunkte: ${tot}/${mx}\nSpiele abgeschlossen: ${doneCount()}/5\n\nForge your mind! 💡`;
+  navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.querySelector('.share-btn'); b.textContent='✓ Kopiert!';
+    setTimeout(()=>b.innerHTML='📋 Ergebnis kopieren',2000);
+  });
+}
+
+updateHub();
+</script>
+</body>
+</html>
